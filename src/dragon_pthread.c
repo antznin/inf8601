@@ -48,9 +48,10 @@ void* dragon_draw_worker(void *data)
 	int height       = drawing_data->dragon_height;
 	int width        = drawing_data->dragon_width;
 	uint64_t surface = height * width;
-	int canvas_begin = surface * id / (int)drawing_data->nb_thread;
-	int canvas_end   = (id == drawing_data->nb_thread - 1) ? 
-		surface : surface * (id + 1) / (int)drawing_data->nb_thread;
+	int canvas_begin = surface * id / drawing_data->nb_thread;
+	int canvas_end   = surface * (id + 1) / drawing_data->nb_thread;
+	/* int canvas_end   = (id == drawing_data->nb_thread - 1) ? */ 
+	/* 	surface : surface * (id + 1) / (int)drawing_data->nb_thread; */
 	init_canvas(canvas_begin, canvas_end, drawing_data->dragon, -1);
 	pthread_barrier_wait(drawing_data->barrier);
 
@@ -63,8 +64,9 @@ void* dragon_draw_worker(void *data)
 
 	int nb    = drawing_data->size / drawing_data->nb_thread;
 	int start = id * nb;
-	int end   = (id == drawing_data->nb_thread - 1) ? 
-		drawing_data->size : nb * (id + 1);
+	int end   = nb * (id + 1);
+	/* int end   = (id == drawing_data->nb_thread - 1) ? */ 
+	/* 	drawing_data->size : nb * (id + 1); */
 
 	int i;
 	for (i = 0; i < NB_TILES; ++i) {
@@ -78,13 +80,14 @@ void* dragon_draw_worker(void *data)
 	/* 3. Effectuer le rendu final */
 
 	int nbRender    = drawing_data->image_height / drawing_data->nb_thread;
-	int startRender = id * nb;
-	int endRender   = (id == drawing_data->nb_thread - 1)  ? 
-		drawing_data->image_height : nbRender * (id + 1);
+	int startRender = id * nbRender;
+	int endRender   = nbRender * (id + 1);
+	/* int endRender   = (id == drawing_data->nb_thread - 1)  ? */ 
+	/* 	drawing_data->image_height : nbRender * (id + 1); */
 	
 	scale_dragon(startRender, endRender, drawing_data->image, drawing_data->image_width,
-			drawing_data->image_height, drawing_data->dragon, drawing_data->dragon_width,
-			drawing_data->dragon_height, drawing_data->palette);
+			drawing_data->image_height, drawing_data->dragon, width,
+			height, drawing_data->palette);
 
 	return NULL;
 }
