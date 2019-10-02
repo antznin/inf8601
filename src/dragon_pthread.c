@@ -43,13 +43,17 @@ void* dragon_draw_worker(void *data)
 
 	struct draw_data * drawing_data = (struct draw_data *)data;
 
+	int id = drawing_data->id;
+
 	int height       = drawing_data->dragon_height;
 	int width        = drawing_data->dragon_width;
 	uint64_t surface = height * width;
-	// Initializing the portion of the canvas
-	int canvas_begin = surface * drawing_data->id / (int)drawing_data->nb_thread;
-	int canvas_end   = surface * drawing_data->(id + 1) / (int)drawing_data->nb_thread;
+	int canvas_begin = surface * id / drawing_data->nb_thread;
+	int canvas_end   = surface * (id + 1) / drawing_data->nb_thread;
+	/* int canvas_end   = (id == drawing_data->nb_thread - 1) ? */ 
+	/* 	surface : surface * (id + 1) / (int)drawing_data->nb_thread; */
 	init_canvas(canvas_begin, canvas_end, drawing_data->dragon, -1);
+	pthread_barrier_wait(drawing_data->barrier);
 
 
 	/* 2. Dessiner les dragons dans les 4 directions
@@ -58,14 +62,39 @@ void* dragon_draw_worker(void *data)
 	 * de chaque dragon.
 	 * */
 
+	int nb    = drawing_data->size / drawing_data->nb_thread;
+	int start = id * nb;
+	int end   = nb * (id + 1);
+	/* int end   = (id == drawing_data->nb_thread - 1) ? */ 
+	/* 	drawing_data->size : nb * (id + 1); */
+
+	int i;
+	for (i = 0; i < NB_TILES; ++i) {
+		dragon_draw_raw(i, start, end, drawing_data->dragon, 
+				width, height, drawing_data->limits, id, 1);
+	}
+
+	pthread_barrier_wait(drawing_data->barrier);
+
+
 	/* 3. Effectuer le rendu final */
+
+	int nbRender    = drawing_data->image_height / drawing_data->nb_thread;
+	int startRender = id * nbRender;
+	int endRender   = nbRender * (id + 1);
+	/* int endRender   = (id == drawing_data->nb_thread - 1)  ? */ 
+	/* 	drawing_data->image_height : nbRender * (id + 1); */
+	
+	scale_dragon(startRender, endRender, drawing_data->image, drawing_data->image_width,
+			drawing_data->image_height, drawing_data->dragon, width,
+			height, drawing_data->palette);
 
 	return NULL;
 }
 
 int dragon_draw_pthread(char **canvas, struct rgb *image, int width, int height, uint64_t size, int nb_thread)
 {
-	TODO("dragon_draw_pthread");
+	/* TODO("dragon_draw_pthread"); */
 
 	pthread_t *threads = NULL;
 	pthread_barrier_t barrier;
@@ -177,7 +206,7 @@ void *dragon_limit_worker(void *data)
  */
 int dragon_limits_pthread(limits_t *limits, uint64_t size, int nb_thread)
 {
-	TODO("dragon_limits_pthread");
+	/* TODO("dragon_limits_pthread"); */
 
 	int ret = 0;
 	int i;
@@ -204,13 +233,17 @@ int dragon_limits_pthread(limits_t *limits, uint64_t size, int nb_thread)
 	for (int i = 0; i < nb_thread; i++) {
 
 		thread_data[i].id    = i;
-		thread_data[i].start = i * size / nb_thread;
-		thread_data[i].end   = (i+1) * size / nb_thread;
-		for (int j = 0; j < NB_TILES; j++)
-			thread_data[i].pieces[j] = masters[j];
+		thread_data[i].start = i * (size / nb_thread);
+		thread_data[i].end   = (i == nb_thread - 1) ? size : (i+1) * (size / nb_thread);
+		for (int j = 0; j < NB_TILES; j++) {
+			/* thread_data[i].pieces[j] = masters[j]; */
+			piece_init(&thread_data[i].pieces[j]);
+			thread_data[i].pieces[j].orientation = tiles_orientation[j];
+		}
 		if (pthread_create(&threads[i], NULL, dragon_limit_worker, (void *)&thread_data[i]) != 0)
 			goto err;
 	}
+
 
 	/* 3. Attendre la fin du traitement. */
 	for (int i = 0; i < nb_thread; i++) 
@@ -225,8 +258,8 @@ int dragon_limits_pthread(limits_t *limits, uint64_t size, int nb_thread)
 	 * */
 
 	for (int i = 0; i < nb_thread; i++) {
-		for (int j = 0; j < nb_thread; j++) {
-			piece_merge(&masters[j], thread_data[i].pieces[j], masters[i].orientation);			
+		for (int j = 0; j < NB_TILES; j++) {
+			piece_merge(&masters[j], thread_data[i].pieces[j], tiles_orientation[j]);			
 		}
 	}
 
@@ -236,6 +269,9 @@ int dragon_limits_pthread(limits_t *limits, uint64_t size, int nb_thread)
 	merge_limits(&masters[0].limits, &masters[1].limits);
 	merge_limits(&masters[0].limits, &masters[2].limits);
 	merge_limits(&masters[0].limits, &masters[3].limits);
+	/* for (int i = 1; i < NB_TILES; i++) { */
+	/* 	merge_limits(&masters[0].limits, &masters[i].limits); */
+	/* } */
 
 done:
 	FREE(threads);

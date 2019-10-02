@@ -3,7 +3,7 @@ dragonizer-dragon_pthread.o: dragon_pthread.c /usr/include/stdc-predef.h \
  /usr/include/features.h /usr/include/sys/cdefs.h \
  /usr/include/bits/wordsize.h /usr/include/bits/long-double.h \
  /usr/include/gnu/stubs.h /usr/include/gnu/stubs-64.h \
- /usr/lib/gcc/x86_64-pc-linux-gnu/9.1.0/include/stddef.h \
+ /usr/lib/gcc/x86_64-redhat-linux/9/include/stddef.h \
  /usr/include/bits/waitflags.h /usr/include/bits/waitstatus.h \
  /usr/include/bits/floatn.h /usr/include/bits/floatn-common.h \
  /usr/include/bits/types/locale_t.h /usr/include/bits/types/__locale_t.h \
@@ -26,7 +26,7 @@ dragonizer-dragon_pthread.o: dragon_pthread.c /usr/include/stdc-predef.h \
  /usr/include/time.h /usr/include/bits/time.h /usr/include/bits/timex.h \
  /usr/include/bits/types/struct_tm.h \
  /usr/include/bits/types/struct_itimerspec.h /usr/include/bits/setjmp.h \
- /usr/lib/gcc/x86_64-pc-linux-gnu/9.1.0/include/stdarg.h \
+ /usr/lib/gcc/x86_64-redhat-linux/9/include/stdarg.h \
  /usr/include/string.h /usr/include/strings.h /usr/include/errno.h \
  /usr/include/bits/errno.h /usr/include/linux/errno.h \
  /usr/include/asm/errno.h /usr/include/asm-generic/errno.h \
@@ -38,7 +38,7 @@ dragonizer-dragon_pthread.o: dragon_pthread.c /usr/include/stdc-predef.h \
  /usr/include/bits/types/cookie_io_functions_t.h \
  /usr/include/bits/stdio_lim.h /usr/include/bits/sys_errlist.h \
  /usr/include/bits/stdio.h \
- /usr/lib/gcc/x86_64-pc-linux-gnu/9.1.0/include/stdint.h \
+ /usr/lib/gcc/x86_64-redhat-linux/9/include/stdint.h \
  /usr/include/stdint.h /usr/include/bits/wchar.h \
  /usr/include/bits/stdint-uintn.h /usr/include/inttypes.h color.h \
  dragon_pthread.h
@@ -61,7 +61,7 @@ dragonizer-dragon_pthread.o: dragon_pthread.c /usr/include/stdc-predef.h \
 
 /usr/include/gnu/stubs-64.h:
 
-/usr/lib/gcc/x86_64-pc-linux-gnu/9.1.0/include/stddef.h:
+/usr/lib/gcc/x86_64-redhat-linux/9/include/stddef.h:
 
 /usr/include/bits/waitflags.h:
 
@@ -149,7 +149,7 @@ dragonizer-dragon_pthread.o: dragon_pthread.c /usr/include/stdc-predef.h \
 
 /usr/include/bits/setjmp.h:
 
-/usr/lib/gcc/x86_64-pc-linux-gnu/9.1.0/include/stdarg.h:
+/usr/lib/gcc/x86_64-redhat-linux/9/include/stdarg.h:
 
 /usr/include/string.h:
 
@@ -195,7 +195,7 @@ dragon.h:
 
 /usr/include/bits/stdio.h:
 
-/usr/lib/gcc/x86_64-pc-linux-gnu/9.1.0/include/stdint.h:
+/usr/lib/gcc/x86_64-redhat-linux/9/include/stdint.h:
 
 /usr/include/stdint.h:
 

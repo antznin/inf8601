@@ -7,7 +7,7 @@ libdragon_a-utils.o: utils.c /usr/include/stdc-predef.h \
  /usr/include/bits/posix_opt.h /usr/include/bits/environments.h \
  /usr/include/bits/types.h /usr/include/bits/timesize.h \
  /usr/include/bits/typesizes.h /usr/include/bits/time64.h \
- /usr/lib/gcc/x86_64-pc-linux-gnu/9.1.0/include/stddef.h \
+ /usr/lib/gcc/x86_64-redhat-linux/9/include/stddef.h \
  /usr/include/bits/confname.h /usr/include/bits/getopt_posix.h \
  /usr/include/bits/getopt_core.h
 
@@ -47,7 +47,7 @@ libdragon_a-utils.o: utils.c /usr/include/stdc-predef.h \
 
 /usr/include/bits/time64.h:
 
-/usr/lib/gcc/x86_64-pc-linux-gnu/9.1.0/include/stddef.h:
+/usr/lib/gcc/x86_64-redhat-linux/9/include/stddef.h:
 
 /usr/include/bits/confname.h:
 
