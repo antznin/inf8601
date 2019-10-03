@@ -39,6 +39,8 @@ void printf_threadsafe(char *format, ...)
  */
 void* dragon_draw_worker(void *data)
 {
+
+
 	/* 1. Initialiser la surface */
 
 	struct draw_data * drawing_data = (struct draw_data *)data;
@@ -67,6 +69,8 @@ void* dragon_draw_worker(void *data)
 	int end   = nb * (id + 1);
 	/* int end   = (id == drawing_data->nb_thread - 1) ? */ 
 	/* 	drawing_data->size : nb * (id + 1); */
+
+	printf_threadsafe("TID = %d. Range = [%d ; %d]. Id = %d.\n", gettid(), start, end, id);
 
 	int i;
 	for (i = 0; i < NB_TILES; ++i) {
