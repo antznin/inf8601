@@ -20,34 +20,34 @@ using namespace std;
 using namespace tbb;
 
 class DragonLimits {
-	public:
+    public:
 	piece_t pieces[NB_TILES];
     
-    void operator()(const blocked_range<size_t>& r ){
+    	void operator()(const blocked_range<size_t>& r ){
 	    int start = r.begin();
 	    int end = r.end();
 	    for (int i = 0; i < NB_TILES; i++) {
 		    piece_limit(start, end, &pieces[i]);
 	    }
-    }
+    	}
     
-    void join(const DragonLimits& other){
+    	void join(const DragonLimits& other){
 	    for (int i = 0; i < NB_TILES; i++) {
 		    piece_merge(&pieces[i],other.pieces[i], tiles_orientation[i]);	
 	    }
-    }
+    	}
     
-    DragonLimits( DragonLimits& other, split){
-        for (int i = 0; i < NB_TILES; i++) {
-		    piece_init(& pieces[i]);
-		    pieces[i].orientation = tiles_orientation[i];   
-        }     
-    }
+    	DragonLimits( DragonLimits& other, split){
+	    for (int i = 0; i < NB_TILES; i++) {
+		piece_init(& pieces[i]);
+		pieces[i].orientation = tiles_orientation[i];   
+	    }     
+   	}
     DragonLimits(){
-        for (int i = 0; i < NB_TILES; i++) {
+	for (int i = 0; i < NB_TILES; i++) {
 		    piece_init(& pieces[i]);
 		    pieces[i].orientation = tiles_orientation[i];   
-        }     
+	}     
     }
 
 };
@@ -56,51 +56,45 @@ class DragonLimits {
 class DragonClear
 {
   public:
-	DragonClear(const DragonClear &d) { this->_draw_data = d._draw_data; }
-	DragonClear(draw_data *draw_data) { this->_draw_data = draw_data; }
-	void operator()(const blocked_range<uint64_t> &r) const
+	draw_data *data;
+	DragonClear(const DragonClear &d) : data(d.data){}
+	DragonClear(draw_data *other_data): data(other_data){}
+	void operator()(const blocked_range<size_t> &r) const
 	{
-		init_canvas(r.begin(), r.end(), this->_draw_data->dragon, -1);
+		init_canvas(r.begin(), r.end(), data->dragon, -1);
 	}
-  private:
-	draw_data *_draw_data;
 };
 
 class DragonDraw
 {
   public:
-	DragonDraw(const DragonDraw &d, TidMap *tidMap)
-	{
-		this->_draw_data = d._draw_data;
-		this->_tidMap = tidMap;
-	}
-	DragonDraw(draw_data *draw_data, TidMap *tidMap)
-	{
-		this->_draw_data = draw_data;
-		this->_tidMap = tidMap;
-	}
+	draw_data *data;
+	DragonDraw(const DragonDraw &d): data(d.data)
+	{}
+	DragonDraw(draw_data *other_data) : data(other_data)
+	{}
 
-	void operator()(const blocked_range<uint64_t> &range) const
+	void operator()(const blocked_range<uint64_t> &r) const
 	{
 		xy_t position;
 		xy_t orientation;
 		uint64_t n;
 		for (size_t k = 0; k < NB_TILES; k++)
 		{
-			//dragon_draw_raw(k, range.begin(), range.end(), this->_draw_data->dragon, this->_draw_data->dragon_width, this->_draw_data->dragon_height, this->_draw_data->limits, _tidMap->getIdFromTid(gettid()), 1);
+			//dragon_draw_raw(k, r.begin(), r.end(), this->data->dragon, this->data->dragon_width, this->data->dragon_height, this->data->limits, _tidMap->getIdFromTid(gettid()), 1);
 			
-            position = compute_position(k, range.begin(), 1);
-			orientation = compute_orientation(k, range.begin(), 1);
-			position.x -= this->_draw_data->limits.minimums.x;
-			position.y -= this->_draw_data->limits.minimums.y;
+            		position = compute_position(k, r.begin(), 1);
+			orientation = compute_orientation(k, r.begin(), 1);
+			position.x -= data->limits.minimums.x;
+			position.y -= data->limits.minimums.y;
 
-			for (n = range.begin() + 1; n <= range.end(); n++)
+			for (n = r.begin() + 1; n <= r.end(); n++)
 			{
 				int j = (position.x + (position.x + orientation.x)) >> 1;
 				int i = (position.y + (position.y + orientation.y)) >> 1;
-				int index = i * this->_draw_data->dragon_width + j;
+				int index = i * data->dragon_width + j;
 
-				this->_draw_data->dragon[index] = n * this->_draw_data->nb_thread / this->_draw_data->size;
+				data->dragon[index] = n * data->nb_thread / data->size;
 
 				position.x += orientation.x;
 				position.y += orientation.y;
@@ -111,33 +105,29 @@ class DragonDraw
 			}//*/
 		}
 	}
-
-  private:
-	TidMap *_tidMap;
-	draw_data *_draw_data;
 };
 
 class DragonRender
 {
   public:
-	DragonRender(const DragonRender &d) { this->_draw_data = d._draw_data; }
-	DragonRender(draw_data *draw_data) { this->_draw_data = draw_data; }
+	DragonRender(const DragonRender &d) : data(d.data){}
+	DragonRender(draw_data *other_data) : data(other_data){}
 
-	void operator()(const blocked_range<uint64_t> &range) const
+	void operator()(const blocked_range<uint64_t> &r) const
 	{
-		scale_dragon(range.begin(),
-					 range.end(),
-					 this->_draw_data->image,
-					 this->_draw_data->image_width,
-					 this->_draw_data->image_height,
-					 this->_draw_data->dragon,
-					 this->_draw_data->dragon_width,
-					 this->_draw_data->dragon_height,
-					 this->_draw_data->palette);
+		scale_dragon(r.begin(),
+			     r.end(),
+			     data->image,
+			     data->image_width,
+			     data->image_height,
+			     data->dragon,
+			     data->dragon_width,
+			     data->dragon_height,
+			     data->palette);
 	}
 
   private:
-	draw_data *_draw_data;
+	draw_data *data;
 };
 
 
@@ -195,18 +185,17 @@ int dragon_draw_tbb(char **canvas, struct rgb *image, int width, int height, uin
 
 	/* 2. Initialiser la surface : DragonClear */
 	DragonClear dragon_clear(&data);
-	parallel_for(blocked_range<uint64_t>(0, dragon_surface), dragon_clear);
+	parallel_for(blocked_range<size_t>(0, dragon_surface), dragon_clear);
 
 	/* 3. Dessiner le dragon : DragonDraw */
 
-	TidMap *tidMap = new TidMap(nb_thread);
 
-	DragonDraw dragon_draw(&data, tidMap);
-	parallel_for(blocked_range<uint64_t>(0, data.size), dragon_draw);
+	DragonDraw dragon_draw(&data);
+	parallel_for(blocked_range<size_t>(0, data.size), dragon_draw);
 
 	/* 4. Effectuer le rendu final */
 	DragonRender dragon_render(&data);
-	parallel_for(blocked_range<uint64_t>(0, data.image_height), dragon_render);
+	parallel_for(blocked_range<size_t>(0, data.image_height), dragon_render);
 
 	//Décommenter pour la partie 3
 	//cout << "Total intervals:\t" << counter << endl;
@@ -217,7 +206,7 @@ int dragon_draw_tbb(char **canvas, struct rgb *image, int width, int height, uin
 	//Décommenter pour la partie 3
 	//tidMap->dump();
 	
-	FREE(tidMap);
+	//FREE(tidMap);
 	*canvas = dragon;
 	return 0;
 }

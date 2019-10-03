@@ -62,16 +62,12 @@ void* dragon_draw_worker(void *data)
 	 * de chaque dragon.
 	 * */
 
-	int nb    = drawing_data->size / drawing_data->nb_thread;
+	int nb    = drawing_data->size / drawing_data->nb_thread  ;
 	int start = id * nb;
 	int end   = nb * (id + 1);
-	/* int end   = (id == drawing_data->nb_thread - 1) ? */ 
-	/* 	drawing_data->size : nb * (id + 1); */
 
-	int i;
-	for (i = 0; i < NB_TILES; ++i) {
-		dragon_draw_raw(i, start, end, drawing_data->dragon, 
-				width, height, drawing_data->limits, id, 1);
+	for (int k = 0; k < NB_TILES; ++k) {
+		dragon_draw_raw(k, start, end, drawing_data->dragon, width, height, drawing_data->limits, id, 1);
 	}
 
 	pthread_barrier_wait(drawing_data->barrier);
@@ -89,12 +85,11 @@ void* dragon_draw_worker(void *data)
 			drawing_data->image_height, drawing_data->dragon, width,
 			height, drawing_data->palette);
 
-	return NULL;
+	return 0;
 }
 
 int dragon_draw_pthread(char **canvas, struct rgb *image, int width, int height, uint64_t size, int nb_thread)
 {
-	/* TODO("dragon_draw_pthread"); */
 
 	pthread_t *threads = NULL;
 	pthread_barrier_t barrier;
@@ -133,7 +128,7 @@ int dragon_draw_pthread(char **canvas, struct rgb *image, int width, int height,
 	}
 
 	if ((threads = malloc(sizeof(pthread_t) * nb_thread)) == NULL) {
-		printf("malloc error threads\n");
+		printf("malloc error threads\n");
 		goto err;
 	}
 
@@ -177,7 +172,7 @@ done:
 	FREE(threads);
 	free_palette(palette);
 	// *canvas = dragon;
-	*canvas = NULL; // TODO: retourner le dragon calculé
+	*canvas = dragon; // TODO: retourner le dragon calculé
 	return ret;
 
 err:
@@ -206,7 +201,6 @@ void *dragon_limit_worker(void *data)
  */
 int dragon_limits_pthread(limits_t *limits, uint64_t size, int nb_thread)
 {
-	/* TODO("dragon_limits_pthread"); */
 
 	int ret = 0;
 	int i;
@@ -282,3 +276,4 @@ err:
 	ret = -1;
 	goto done;
 }
+
