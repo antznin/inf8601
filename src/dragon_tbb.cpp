@@ -197,16 +197,9 @@ int dragon_draw_tbb(char **canvas, struct rgb *image, int width, int height, uin
 	DragonRender dragon_render(&data);
 	parallel_for(blocked_range<size_t>(0, data.image_height), dragon_render);
 
-	//Décommenter pour la partie 3
-	//cout << "Total intervals:\t" << counter << endl;
-
 	free_palette(palette);
 	FREE(data.tid);
 	
-	//Décommenter pour la partie 3
-	//tidMap->dump();
-	
-	//FREE(tidMap);
 	*canvas = dragon;
 	return 0;
 }
