@@ -69,8 +69,6 @@ class DragonDraw
 {
   public:
 	draw_data *data;
-	DragonDraw(const DragonDraw &d): data(d.data)
-	{}
 	DragonDraw(draw_data *other_data) : data(other_data)
 	{}
 
