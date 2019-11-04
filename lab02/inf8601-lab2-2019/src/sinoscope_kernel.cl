@@ -86,7 +86,31 @@ void value_color(struct rgb *color, float value, int interval, float interval_in
 	*color = c;
 }
 
-__kernel void sinoscope_kernel()
+__kernel void sinoscope_kernel(__global unsigned char *output,
+							   int width,
+							   int taylor,
+							   int interval,
+							   float interval_inv,
+							   float time,
+							   float phase0,
+							   float phase1,
+							   float dx,
+							   float dy)
 {
-	// TODO
+	int x = get_global_id(0), y = get_global_id(1), index, t;	
+	float px, py, val;
+	px = dx * y - 2 * M_PI;
+	py = dy * x - 2 * M_PI;
+	for (t = 1; t <= taylor; t += 2) {
+		val += sin(px * t * phase1 + time) / t + cos(py * t *
+				phase0) / t;
+	}
+	val = (atan(1.0 * val) - atan(-1.0 * val)) / (M_PI);
+	val = (val + 1) * 100;
+	struct rgb c;
+	value_color(&c, val, interval, interval_inv);
+	index = (y * 3) + (x * 3) * width;
+	output[index + 0] = c.r;
+	output[index + 1] = c.g;
+	output[index + 2] = c.b;
 }
